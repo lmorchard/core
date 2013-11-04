@@ -11,7 +11,9 @@ from marrow.util.bunch import Bunch
 
 import adam.auth.util
 from adam.auth.model.authentication import User
-from adam.auth.form import authenticate as authenticate_form, register as register_form
+from adam.auth.form import (authenticate as authenticate_form, 
+                            register as register_form,
+                            change_password as change_password_form)
 from adam.auth.util.predicate import authorize, authenticated
 
 from adam.auth.controller.key import KeyController
@@ -68,10 +70,44 @@ class Register(HTTPMethod):
         return 'json:', dict(success=True, location="/")
 
 
+class Password(HTTPMethod):
+
+    @authorize(authenticated)
+    def get(self, redirect=None):
+        form = change_password_form(dict(redirect=redirect))
+        return "adam.auth.template.settings.password", dict(form=form)
+
+    @authorize(authenticated)
+    def post(self, **post):
+        return 'json:', post
+
+
+class Settings(Controller):
+
+    password = Password()
+
+    @authorize(authenticated)
+    def index(self, redirect=None):
+        return "adam.auth.template.settings", dict()
+
+
+class AccountIndex(HTTPMethod):
+
+    @authorize(authenticated)
+    def get(self, redirect=None):
+        return "adam.auth.template.index", dict()
+
+    @authorize(authenticated)
+    def post(self, **post):
+        pass
+
+
 class AccountController(Controller):
     authenticate = Authenticate()
     register = Register()
-    
+    settings = Settings()
+    index = AccountIndex()
+
     def exists(self, **query):
         query.pop('ts', None)
         

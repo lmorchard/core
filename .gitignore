@@ -1,5 +1,6 @@
 *.pyc
 *.pyo
+*.sw[po]
 *~
 *.egg-info
 .DS_Store
